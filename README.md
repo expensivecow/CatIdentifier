@@ -17,4 +17,3 @@ with reference to https://github.com/humphd/have-fun-with-machine-learning
 
 Image Sizing/File Structuring Format for DIGITS
 https://github.com/NVIDIA/DIGITS/blob/digits-4.0/docs/ImageFolderFormat.md
-

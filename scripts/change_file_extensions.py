@@ -19,7 +19,7 @@ else:
 		for thisFile in os.listdir(dir):
 			if thisFile.endswith(curr_ext): 
 				logRenameInfo(thisFile, os.path.splitext(thisFile)[0] + '.' + new_ext)
-				os.rename(os.path.join(dir, thisFile), os.path.join(dir, os.path.splitext(thisFile)[0] + new_ext))
+				os.rename(os.path.join(dir, thisFile), os.path.join(dir, os.path.splitext(thisFile)[0] + '.' + new_ext))
 				continue
 			else:
 				continue

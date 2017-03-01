@@ -1,45 +1,32 @@
+# GoogLeNet - modified for fine tuning on 2 categories
 name: "GoogleNet"
 layer {
-  name: "data"
+  name: "train-data"
   type: "Data"
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
   transform_param {
     mirror: true
     crop_size: 224
-    mean_value: 104
-    mean_value: 117
-    mean_value: 123
   }
   data_param {
-    source: "examples/imagenet/ilsvrc12_train_lmdb"
     batch_size: 32
-    backend: LMDB
   }
+  include { stage: "train" }
 }
 layer {
-  name: "data"
+  name: "val-data"
   type: "Data"
   top: "data"
   top: "label"
-  include {
-    phase: TEST
-  }
   transform_param {
     mirror: false
     crop_size: 224
-    mean_value: 104
-    mean_value: 117
-    mean_value: 123
   }
   data_param {
-    source: "examples/imagenet/ilsvrc12_val_lmdb"
-    batch_size: 50
-    backend: LMDB
+    batch_size: 16
   }
+  include { stage: "val" }
 }
 layer {
   name: "conv1/7x7_s2"
@@ -61,6 +48,7 @@ layer {
     stride: 2
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -114,6 +102,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -146,6 +135,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -199,6 +189,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -230,6 +221,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -262,6 +254,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -293,6 +286,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -325,6 +319,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -368,6 +363,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -408,6 +404,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -439,6 +436,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -471,6 +469,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -502,6 +501,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -534,6 +534,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -577,6 +578,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -628,6 +630,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -659,6 +662,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -691,6 +695,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -722,6 +727,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -754,6 +760,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -797,6 +804,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -829,6 +837,7 @@ layer {
     kernel_size: 5
     stride: 3
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/conv"
@@ -848,18 +857,21 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.08
     }
     bias_filler {
       type: "constant"
       value: 0.2
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/relu_conv"
   type: "ReLU"
   bottom: "loss1/conv"
   top: "loss1/conv"
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/fc"
@@ -878,18 +890,21 @@ layer {
     num_output: 1024
     weight_filler {
       type: "xavier"
+      std: 0.02
     }
     bias_filler {
       type: "constant"
       value: 0.2
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/relu_fc"
   type: "ReLU"
   bottom: "loss1/fc"
   top: "loss1/fc"
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/drop_fc"
@@ -899,12 +914,13 @@ layer {
   dropout_param {
     dropout_ratio: 0.7
   }
+  exclude { stage: "deploy" }
 }
 layer {
-  name: "loss1/classifier"
+  name: "loss1a/classifier"
   type: "InnerProduct"
   bottom: "loss1/fc"
-  top: "loss1/classifier"
+  top: "loss1a/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -914,43 +930,42 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 1000
+    num_output: 2
     weight_filler {
       type: "xavier"
+      std: 0.0009765625
     }
     bias_filler {
       type: "constant"
       value: 0
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/loss"
   type: "SoftmaxWithLoss"
-  bottom: "loss1/classifier"
+  bottom: "loss1a/classifier"
   bottom: "label"
-  top: "loss1/loss1"
+  top: "loss1/loss"
   loss_weight: 0.3
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss1/top-1"
   type: "Accuracy"
-  bottom: "loss1/classifier"
+  bottom: "loss1a/classifier"
   bottom: "label"
-  top: "loss1/top-1"
-  include {
-    phase: TEST
-  }
+  top: "loss1/accuracy"
+  include { stage: "val" }
 }
 layer {
   name: "loss1/top-5"
   type: "Accuracy"
-  bottom: "loss1/classifier"
+  bottom: "loss1a/classifier"
   bottom: "label"
-  top: "loss1/top-5"
-  include {
-    phase: TEST
-  }
+  top: "loss1/accuracy-top5"
+  include { stage: "val" }
   accuracy_param {
     top_k: 5
   }
@@ -973,6 +988,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1004,6 +1020,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -1036,6 +1053,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1067,6 +1085,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -1099,6 +1118,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1142,6 +1162,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -1182,6 +1203,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1213,6 +1235,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -1245,6 +1268,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1276,6 +1300,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -1308,6 +1333,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1351,6 +1377,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -1391,6 +1418,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1422,6 +1450,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -1454,6 +1483,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1485,6 +1515,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -1517,6 +1548,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1560,6 +1592,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -1592,6 +1625,7 @@ layer {
     kernel_size: 5
     stride: 3
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/conv"
@@ -1611,18 +1645,21 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.08
     }
     bias_filler {
       type: "constant"
       value: 0.2
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/relu_conv"
   type: "ReLU"
   bottom: "loss2/conv"
   top: "loss2/conv"
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/fc"
@@ -1641,18 +1678,21 @@ layer {
     num_output: 1024
     weight_filler {
       type: "xavier"
+      std: 0.02
     }
     bias_filler {
       type: "constant"
       value: 0.2
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/relu_fc"
   type: "ReLU"
   bottom: "loss2/fc"
   top: "loss2/fc"
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/drop_fc"
@@ -1662,12 +1702,13 @@ layer {
   dropout_param {
     dropout_ratio: 0.7
   }
+  exclude { stage: "deploy" }
 }
 layer {
-  name: "loss2/classifier"
+  name: "loss2a/classifier"
   type: "InnerProduct"
   bottom: "loss2/fc"
-  top: "loss2/classifier"
+  top: "loss2a/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -1677,43 +1718,42 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 1000
+    num_output: 2
     weight_filler {
       type: "xavier"
+      std: 0.0009765625
     }
     bias_filler {
       type: "constant"
       value: 0
     }
   }
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/loss"
   type: "SoftmaxWithLoss"
-  bottom: "loss2/classifier"
+  bottom: "loss2a/classifier"
   bottom: "label"
-  top: "loss2/loss1"
+  top: "loss2/loss"
   loss_weight: 0.3
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss2/top-1"
   type: "Accuracy"
-  bottom: "loss2/classifier"
+  bottom: "loss2a/classifier"
   bottom: "label"
-  top: "loss2/top-1"
-  include {
-    phase: TEST
-  }
+  top: "loss2/accuracy"
+  include { stage: "val" }
 }
 layer {
   name: "loss2/top-5"
   type: "Accuracy"
-  bottom: "loss2/classifier"
+  bottom: "loss2a/classifier"
   bottom: "label"
-  top: "loss2/top-5"
-  include {
-    phase: TEST
-  }
+  top: "loss2/accuracy-top5"
+  include { stage: "val" }
   accuracy_param {
     top_k: 5
   }
@@ -1736,6 +1776,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1767,6 +1808,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -1799,6 +1841,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1830,6 +1873,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -1862,6 +1906,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1905,6 +1950,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -1956,6 +2002,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -1987,6 +2034,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -2019,6 +2067,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -2050,6 +2099,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -2082,6 +2132,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -2125,6 +2176,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -2165,6 +2217,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -2196,6 +2249,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.09
     }
     bias_filler {
       type: "constant"
@@ -2228,6 +2282,7 @@ layer {
     kernel_size: 3
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -2259,6 +2314,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.2
     }
     bias_filler {
       type: "constant"
@@ -2291,6 +2347,7 @@ layer {
     kernel_size: 5
     weight_filler {
       type: "xavier"
+      std: 0.03
     }
     bias_filler {
       type: "constant"
@@ -2334,6 +2391,7 @@ layer {
     kernel_size: 1
     weight_filler {
       type: "xavier"
+      std: 0.1
     }
     bias_filler {
       type: "constant"
@@ -2377,10 +2435,10 @@ layer {
   }
 }
 layer {
-  name: "loss3/classifier"
+  name: "loss3a/classifier"
   type: "InnerProduct"
   bottom: "pool5/7x7_s1"
-  top: "loss3/classifier"
+  top: "loss3a/classifier"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -2390,7 +2448,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 1000
+    num_output: 2
     weight_filler {
       type: "xavier"
     }
@@ -2401,33 +2459,37 @@ layer {
   }
 }
 layer {
-  name: "loss3/loss3"
+  name: "loss3/loss"
   type: "SoftmaxWithLoss"
-  bottom: "loss3/classifier"
+  bottom: "loss3a/classifier"
   bottom: "label"
-  top: "loss3/loss3"
+  top: "loss"
   loss_weight: 1
+  exclude { stage: "deploy" }
 }
 layer {
   name: "loss3/top-1"
   type: "Accuracy"
-  bottom: "loss3/classifier"
+  bottom: "loss3a/classifier"
   bottom: "label"
-  top: "loss3/top-1"
-  include {
-    phase: TEST
-  }
+  top: "accuracy"
+  include { stage: "val" }
 }
 layer {
   name: "loss3/top-5"
   type: "Accuracy"
-  bottom: "loss3/classifier"
+  bottom: "loss3a/classifier"
   bottom: "label"
-  top: "loss3/top-5"
-  include {
-    phase: TEST
-  }
+  top: "accuracy-top5"
+  include { stage: "val" }
   accuracy_param {
     top_k: 5
   }
+}
+layer {
+  name: "softmax"
+  type: "Softmax"
+  bottom: "loss3a/classifier"
+  top: "softmax"
+  include { stage: "deploy" }
 }
